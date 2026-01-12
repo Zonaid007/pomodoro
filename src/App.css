@@ -47,15 +47,58 @@
     padding: var(--spacing-lg);
 }
 
-/* Focus mode - hide header buttons */
-.app.focus-mode .app-nav {
-    opacity: 0.3;
-    transition: opacity var(--transition-normal);
+/* Fullscreen mode - hide header and non-essential UI */
+.app.fullscreen-mode .app-header {
+    opacity: 0;
+    pointer-events: none;
+    height: 0;
+    padding: 0;
+    overflow: hidden;
+    transition: opacity 0.3s ease, height 0.3s ease, padding 0.3s ease;
 }
 
-.app.focus-mode .app-nav:hover,
-.app.focus-mode .app-nav:focus-within {
-    opacity: 1;
+.app.fullscreen-mode .app-main {
+    justify-content: center;
+}
+
+/* Fullscreen hint */
+.fullscreen-hint {
+    position: fixed;
+    bottom: var(--spacing-lg);
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.app.fullscreen-mode:hover .fullscreen-hint {
+    opacity: 0.7;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .app.fullscreen-mode .app-header,
+    .fullscreen-hint {
+        transition: none;
+    }
+
+    .panel-overlay {
+        animation: none;
+    }
 }
 
 /* Panel overlays */

@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react';
-import type { Phase, Distraction, Reflection, DistractionType } from './types';
+import type { Phase, Distraction, Reflection } from './types';
 import { useTimer } from './hooks/useTimer';
 import { useSettings } from './hooks/useSettings';
 import { useSessions } from './hooks/useSessions';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { Timer } from './components/Timer';
 import { IntentionInput } from './components/Intention';
 import { DistractionModal } from './components/Distraction';
@@ -25,7 +26,7 @@ function App() {
     const [showDistraction, setShowDistraction] = useState(false);
     const [showReflection, setShowReflection] = useState(false);
     const [pendingReflectionSessionId, setPendingReflectionSessionId] = useState<string | null>(null);
-    const [pendingReflectionDistractions, setPendingReflectionDistractions] = useState<DistractionType[]>([]);
+    const [isFullscreen, setIsFullscreen] = useState(false);
 
     // Handle phase completion
     const handlePhaseComplete = useCallback((phase: Phase, data: {
@@ -52,8 +53,10 @@ function App() {
 
             // Show reflection modal
             setPendingReflectionSessionId(sessionId);
-            setPendingReflectionDistractions(data.distractions.map(d => d.type));
             setShowReflection(true);
+
+            // Exit fullscreen on completion if desired, or keep it
+            // setIsFullscreen(false); 
         }
     }, [createSession, settings]);
 
@@ -68,24 +71,78 @@ function App() {
         timer.setIntention(intention);
         timer.start(intention);
         setView('timer');
+        setIsFullscreen(true); // Auto-enter fullscreen on start
     }, [timer]);
 
     // Handle starting without intention
     const handleSkipIntention = useCallback(() => {
         timer.start('');
         setView('timer');
+        setIsFullscreen(true); // Auto-enter fullscreen on start
     }, [timer]);
+
+    // Handle reset (abandon session)
+    const handleReset = useCallback(() => {
+        // If we are in a focus session and it has started (running or paused), save it as abandoned
+        if (timer.state.phase === 'focus' && timer.state.status !== 'idle' && timer.sessionStartTime) {
+            createSession({
+                phase: 'focus',
+                intention: timer.intention,
+                distractions: timer.distractions,
+                startTime: timer.sessionStartTime,
+                endTime: Date.now(),
+                phaseDurations: {
+                    focus: settings.focusDuration,
+                    shortBreak: settings.shortBreakDuration,
+                    longBreak: settings.longBreakDuration,
+                },
+                completed: false, // Mark as incomplete/abandoned
+            });
+        }
+        timer.reset();
+        setIsFullscreen(false);
+    }, [timer, createSession, settings]);
 
     // Handle start button click
     const handleStart = useCallback(() => {
-        if (timer.state.phase === 'focus' && timer.state.status === 'idle') {
-            // Show intention input before starting focus
-            setView('intention');
+        if (timer.state.status === 'running') {
+            timer.pause();
+        } else if (timer.state.status === 'paused') {
+            timer.resume();
         } else {
-            // Start break immediately
-            timer.start();
+            // Idle state
+            if (timer.state.phase === 'focus') {
+                // Show intention input before starting focus
+                setView('intention');
+            } else {
+                // Start break immediately
+                timer.start();
+            }
         }
     }, [timer]);
+
+    // One-click quick start (bypasses intention if needed, or just toggles)
+    const handleQuickStart = useCallback(() => {
+        if (timer.state.status === 'idle' && timer.state.phase === 'focus') {
+            // If idle in focus, start immediately with previous intention or empty
+            // For "one-click start", we might want to skip intention input
+            // But let's respect the flow: Space -> Start/Pause
+            // If we want Space to open intention, we can do that.
+            // Or if we want Space to START immediately:
+            timer.start(timer.intention || '');
+            setIsFullscreen(true);
+        } else {
+            handleStart();
+        }
+    }, [timer, handleStart]);
+
+    // Keyboard shortcuts
+    useKeyboardShortcuts({
+        onToggleTimer: handleQuickStart,
+        onToggleFullscreen: () => setIsFullscreen(prev => !prev),
+        onExitFullscreen: () => setIsFullscreen(false),
+        isFullscreen,
+    });
 
     // Handle logging a distraction
     const handleLogDistraction = useCallback((distraction: Distraction) => {
@@ -99,14 +156,12 @@ function App() {
         }
         setShowReflection(false);
         setPendingReflectionSessionId(null);
-        setPendingReflectionDistractions([]);
     }, [pendingReflectionSessionId, addReflection]);
 
     // Handle reflection skip
     const handleReflectionSkip = useCallback(() => {
         setShowReflection(false);
         setPendingReflectionSessionId(null);
-        setPendingReflectionDistractions([]);
     }, []);
 
     // Calculate elapsed time for distraction logging
@@ -115,12 +170,11 @@ function App() {
         : 0;
 
     // Determine if focus mode UI should be applied
-    const isFocusModeActive = settings.focusModeEnabled &&
-        timer.state.phase === 'focus' &&
-        timer.state.status === 'running';
+    // We now use explicit isFullscreen state for the "Focus Mode" UI
+    const isFocusModeActive = isFullscreen;
 
     return (
-        <div className={`app ${isFocusModeActive ? 'focus-mode' : ''}`}>
+        <div className={`app ${isFocusModeActive ? 'fullscreen-mode' : ''}`}>
             {/* Header */}
             <header className="app-header">
                 <div className="app-logo">
@@ -167,7 +221,7 @@ function App() {
                         onStart={handleStart}
                         onPause={timer.pause}
                         onResume={timer.resume}
-                        onReset={timer.reset}
+                        onReset={handleReset}
                         onSkip={timer.skip}
                         onAddMinute={timer.addMinute}
                         onLogDistraction={() => setShowDistraction(true)}
@@ -188,7 +242,6 @@ function App() {
                 isOpen={showReflection}
                 onSubmit={handleReflectionSubmit}
                 onSkip={handleReflectionSkip}
-                distractionsLogged={pendingReflectionDistractions}
             />
 
             {/* Settings Panel */}
@@ -220,6 +273,13 @@ function App() {
                         onClose={() => setShowStats(false)}
                     />
                 </>
+            )}
+
+            {/* Fullscreen Toggle Hint (visible only when hovering in fullscreen or initially) */}
+            {isFocusModeActive && (
+                <div className="fullscreen-hint">
+                    Press <strong>Esc</strong> to exit
+                </div>
             )}
         </div>
     );

@@ -43,8 +43,8 @@ export function StatsView({ sessions, onClose }: StatsViewProps) {
                             <span className="stat-label">Minutes Focused</span>
                         </div>
                         <div className="stat-card">
-                            <span className="stat-value">{stats.todayDistractions}</span>
-                            <span className="stat-label">Distractions</span>
+                            <span className="stat-value">{stats.todayAbandoned}</span>
+                            <span className="stat-label">Paused</span>
                         </div>
                     </div>
                 </section>
@@ -89,6 +89,7 @@ export function StatsView({ sessions, onClose }: StatsViewProps) {
 
 interface Stats {
     todaySessions: number;
+    todayAbandoned: number;
     todayMinutes: number;
     todayDistractions: number;
     weeklyData: { date: string; minutes: number; label: string }[];
@@ -102,6 +103,11 @@ function calculateStats(sessions: Session[]): Stats {
     // Today's completed focus sessions
     const todaySessions = sessions.filter(s =>
         s.date === today && s.completed
+    );
+
+    // Today's abandoned/paused sessions
+    const todayAbandoned = sessions.filter(s =>
+        s.date === today && !s.completed && s.phaseDurations.focus > 0 // Ensure it's a valid session record
     );
 
     const todayMinutes = todaySessions.reduce((sum, s) => {
@@ -175,6 +181,7 @@ function calculateStats(sessions: Session[]): Stats {
 
     return {
         todaySessions: todaySessions.length,
+        todayAbandoned: todayAbandoned.length,
         todayMinutes,
         todayDistractions,
         weeklyData,

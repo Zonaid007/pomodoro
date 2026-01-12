@@ -7,8 +7,8 @@ export type TimerStatus = 'idle' | 'running' | 'paused';
 // Distraction types for logging
 export type DistractionType = 'thought' | 'phone' | 'notification' | 'noise' | 'urge' | 'other';
 
-// Reflection quality options
-export type ReflectionQuality = 'great' | 'okay' | 'struggled';
+// Reflection quality options (1-5 rating)
+export type ReflectionQuality = number;
 
 // User settings interface
 export interface Settings {
