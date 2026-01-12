@@ -1,4 +1,4 @@
-import type { Phase, TimerState, Settings } from '../../types';
+import type { TimerState, Settings } from '../../types';
 import { formatTime } from '../../utils/time';
 import { PhaseIndicator } from './PhaseIndicator';
 import { TimerControls } from './TimerControls';

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Phase, TimerState, Settings, CurrentSession, Distraction } from '../types';
-import { minutesToMs, generateId, getTodayDate } from '../utils/time';
+import { minutesToMs, generateId } from '../utils/time';
 import { saveCurrentSession, getCurrentSession } from '../utils/storage';
 import { playChime, resumeAudioContext } from '../utils/audio';
 

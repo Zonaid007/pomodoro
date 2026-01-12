@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode, type MouseEvent, type KeyboardEvent } from 'react';
+import { useEffect, useRef, type ReactNode, type MouseEvent } from 'react';
 
 interface ModalProps {
     isOpen: boolean;

@@ -1,7 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import {
     getStorageData,
-    saveStorageData,
     saveSettings,
     saveCurrentSession,
     getCurrentSession,
@@ -21,7 +20,7 @@ const localStorageMock = (() => {
     };
 })();
 
-Object.defineProperty(global, 'localStorage', { value: localStorageMock });
+Object.defineProperty(globalThis, 'localStorage', { value: localStorageMock });
 
 describe('Storage utilities', () => {
     beforeEach(() => {
