@@ -4,12 +4,13 @@ import { useTimer } from './hooks/useTimer';
 import { useSettings } from './hooks/useSettings';
 import { useSessions } from './hooks/useSessions';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
-import { Timer } from './components/Timer';
+import { useSessionSuggestion } from './hooks/useSessionSuggestion';
+import { Timer, SessionSuggestion } from './components/Timer';
 import { IntentionInput } from './components/Intention';
 import { DistractionModal } from './components/Distraction';
 import { ReflectionModal } from './components/Reflection';
 import { SettingsPanel } from './components/Settings';
-import { StatsView } from './components/Stats';
+import { StatsView, InsightsView } from './components/Stats';
 import './App.css';
 
 type View = 'timer' | 'intention';
@@ -23,10 +24,15 @@ function App() {
     const [view, setView] = useState<View>('timer');
     const [showSettings, setShowSettings] = useState(false);
     const [showStats, setShowStats] = useState(false);
+    const [showInsights, setShowInsights] = useState(false);
     const [showDistraction, setShowDistraction] = useState(false);
     const [showReflection, setShowReflection] = useState(false);
     const [pendingReflectionSessionId, setPendingReflectionSessionId] = useState<string | null>(null);
     const [isFullscreen, setIsFullscreen] = useState(false);
+    const [suggestionDismissed, setSuggestionDismissed] = useState(false);
+
+    // Session suggestion
+    const suggestion = useSessionSuggestion(sessions, settings);
 
     // Handle phase completion
     const handlePhaseComplete = useCallback((phase: Phase, data: {
@@ -189,6 +195,14 @@ function App() {
                 <nav className="app-nav" aria-label="Main navigation">
                     <button
                         className="btn btn-ghost btn-icon"
+                        onClick={() => { refreshSessions(); setShowInsights(true); }}
+                        aria-label="View insights"
+                        title="Insights"
+                    >
+                        <InsightsIcon />
+                    </button>
+                    <button
+                        className="btn btn-ghost btn-icon"
                         onClick={() => { refreshSessions(); setShowStats(true); }}
                         aria-label="View statistics"
                         title="Stats"
@@ -214,18 +228,37 @@ function App() {
                         onSkip={handleSkipIntention}
                     />
                 ) : (
-                    <Timer
-                        state={timer.state}
-                        settings={settings}
-                        intention={timer.intention}
-                        onStart={handleStart}
-                        onPause={timer.pause}
-                        onResume={timer.resume}
-                        onReset={handleReset}
-                        onSkip={timer.skip}
-                        onAddMinute={timer.addMinute}
-                        onLogDistraction={() => setShowDistraction(true)}
-                    />
+                    <>
+                        <Timer
+                            state={timer.state}
+                            settings={settings}
+                            intention={timer.intention}
+                            onStart={handleStart}
+                            onPause={timer.pause}
+                            onResume={timer.resume}
+                            onReset={handleReset}
+                            onSkip={timer.skip}
+                            onAddMinute={timer.addMinute}
+                            onLogDistraction={() => setShowDistraction(true)}
+                        />
+
+                        {/* Session Suggestion */}
+                        {timer.state.status === 'idle' &&
+                            timer.state.phase === 'focus' &&
+                            suggestion.shouldShow &&
+                            !suggestionDismissed && (
+                                <SessionSuggestion
+                                    suggestedDuration={suggestion.suggestedDuration}
+                                    currentDuration={settings.focusDuration}
+                                    reason={suggestion.reason}
+                                    onAccept={() => {
+                                        updateSettings({ focusDuration: suggestion.suggestedDuration });
+                                        setSuggestionDismissed(true);
+                                    }}
+                                    onDismiss={() => setSuggestionDismissed(true)}
+                                />
+                            )}
+                    </>
                 )}
             </main>
 
@@ -275,6 +308,21 @@ function App() {
                 </>
             )}
 
+            {/* Insights View */}
+            {showInsights && (
+                <>
+                    <div
+                        className="panel-overlay"
+                        onClick={() => setShowInsights(false)}
+                        aria-hidden="true"
+                    />
+                    <InsightsView
+                        sessions={sessions}
+                        onClose={() => setShowInsights(false)}
+                    />
+                </>
+            )}
+
             {/* Fullscreen Toggle Hint (visible only when hovering in fullscreen or initially) */}
             {isFocusModeActive && (
                 <div className="fullscreen-hint">
@@ -299,6 +347,14 @@ function SettingsIcon() {
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <circle cx="12" cy="12" r="3" />
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+    );
+}
+
+function InsightsIcon() {
+    return (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
         </svg>
     );
 }

@@ -1,0 +1,167 @@
+.forest-scene {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.forest-svg {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+/* River flowing animation */
+.river {
+    animation: riverFlow 8s ease-in-out infinite;
+}
+
+@keyframes riverFlow {
+
+    0%,
+    100% {
+        stroke-dashoffset: 0;
+    }
+
+    50% {
+        stroke-dashoffset: 10;
+    }
+}
+
+.river-shimmer {
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+
+    0%,
+    100% {
+        opacity: 0.1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+}
+
+/* Tree wind sway */
+.tree-crown {
+    transform-origin: center bottom;
+    animation: sway 4s ease-in-out infinite;
+}
+
+.tree:nth-child(2) .tree-crown {
+    animation-delay: 0.5s;
+}
+
+.tree:nth-child(3) .tree-crown {
+    animation-delay: 1s;
+}
+
+.tree:nth-child(4) .tree-crown {
+    animation-delay: 1.5s;
+}
+
+.tree:nth-child(5) .tree-crown {
+    animation-delay: 2s;
+}
+
+@keyframes sway {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(1deg);
+    }
+
+    75% {
+        transform: rotate(-1deg);
+    }
+}
+
+/* Star twinkling */
+.twinkle {
+    animation: twinkle 2s ease-in-out infinite;
+}
+
+.twinkle-delay {
+    animation: twinkle 2s ease-in-out infinite 1s;
+}
+
+@keyframes twinkle {
+
+    0%,
+    100% {
+        opacity: 0.4;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
+}
+
+/* Moon glow */
+.moon {
+    animation: moonGlow 5s ease-in-out infinite;
+}
+
+@keyframes moonGlow {
+
+    0%,
+    100% {
+        opacity: 0.85;
+    }
+
+    50% {
+        opacity: 0.95;
+    }
+}
+
+/* Light rays animation */
+.light-rays {
+    animation: lightFade 6s ease-in-out infinite;
+}
+
+@keyframes lightFade {
+
+    0%,
+    100% {
+        opacity: 0.1;
+    }
+
+    50% {
+        opacity: 0.2;
+    }
+}
+
+/* Progress text */
+.forest-progress {
+    text-align: center;
+}
+
+.progress-text {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    font-style: italic;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+
+    .river,
+    .river-shimmer,
+    .tree-crown,
+    .twinkle,
+    .twinkle-delay,
+    .moon,
+    .light-rays {
+        animation: none;
+    }
+}

@@ -1,3 +1,2 @@
 export { Timer } from './Timer';
-export { TimerControls } from './TimerControls';
-export { PhaseIndicator } from './PhaseIndicator';
+export { SessionSuggestion } from './SessionSuggestion';
