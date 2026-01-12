@@ -1,0 +1,218 @@
+.timer-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--spacing-lg);
+}
+
+/* Phase Indicator */
+.phase-indicator {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.phase-dots {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.phase-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background-color: var(--color-bg-tertiary);
+    transition: background-color var(--transition-normal);
+}
+
+.phase-dot.completed {
+    background-color: var(--color-focus);
+}
+
+.phase-dot.current {
+    background-color: var(--color-focus);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.phase-label {
+    font-size: var(--font-size-lg);
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.phase-label.focus {
+    color: var(--color-focus);
+}
+
+.phase-label.shortBreak {
+    color: var(--color-short-break);
+}
+
+.phase-label.longBreak {
+    color: var(--color-long-break);
+}
+
+/* Timer Display */
+.timer-display {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(250px, 60vw, 350px);
+    height: clamp(250px, 60vw, 350px);
+    margin-bottom: var(--spacing-xl);
+}
+
+.timer-ring {
+    position: absolute;
+    inset: 0;
+}
+
+.timer-ring-svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.timer-ring-bg {
+    fill: none;
+    stroke: var(--color-bg-tertiary);
+    stroke-width: 4;
+}
+
+.timer-ring-progress {
+    fill: none;
+    stroke: var(--color-focus);
+    stroke-width: 4;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.1s linear, stroke var(--transition-normal);
+}
+
+.timer-ring-progress.focus {
+    stroke: var(--color-focus);
+}
+
+.timer-ring-progress.shortBreak {
+    stroke: var(--color-short-break);
+}
+
+.timer-ring-progress.longBreak {
+    stroke: var(--color-long-break);
+}
+
+.timer-inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.timer-time {
+    font-size: var(--font-size-timer);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text-primary);
+    letter-spacing: -0.02em;
+}
+
+.timer-status {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: var(--spacing-xs);
+}
+
+/* Intention Display */
+.intention-display {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+    padding: 0 var(--spacing-lg);
+    max-width: 400px;
+}
+
+.intention-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: var(--spacing-xs);
+}
+
+.intention-text {
+    font-size: var(--font-size-lg);
+    color: var(--color-text-secondary);
+    font-style: italic;
+}
+
+/* Timer Controls */
+.timer-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.primary-control {
+    min-width: 140px;
+}
+
+.secondary-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+/* Control button icons */
+.control-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* Distraction button */
+.distraction-trigger {
+    position: fixed;
+    bottom: var(--spacing-xl);
+    right: var(--spacing-xl);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    color: var(--color-text-secondary);
+    opacity: 0.8;
+    transition: all var(--transition-fast);
+}
+
+.distraction-trigger:hover {
+    opacity: 1;
+    background-color: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .timer-container {
+        padding: var(--spacing-md);
+    }
+
+    .timer-display {
+        width: 80vw;
+        height: 80vw;
+        max-width: 280px;
+        max-height: 280px;
+    }
+
+    .timer-controls {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .distraction-trigger {
+        bottom: var(--spacing-md);
+        right: var(--spacing-md);
+    }
+}

@@ -1,0 +1,68 @@
+.distraction-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.distraction-message {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    margin: 0;
+    text-align: center;
+}
+
+.distraction-types {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-sm);
+}
+
+.distraction-type-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md);
+    background-color: var(--color-bg-tertiary);
+    border: 2px solid transparent;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.distraction-type-btn:hover {
+    background-color: #475569;
+}
+
+.distraction-type-btn.selected {
+    border-color: var(--color-interactive);
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+.distraction-type-icon {
+    font-size: var(--font-size-xl);
+}
+
+.distraction-type-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+}
+
+.distraction-note {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.distraction-note-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.distraction-hint {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    font-style: italic;
+    text-align: center;
+    margin: 0;
+}
